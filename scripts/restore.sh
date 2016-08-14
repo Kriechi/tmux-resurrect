@@ -332,8 +332,16 @@ restore_active_and_alternate_sessions() {
 	done < $(last_resurrect_file)
 }
 
+run_pre_restore_command() {
+	local command="$(get_tmux_option "@resurrect-pre-restore-command" "")"
+	if [ "$command" ]; then
+		eval "$command"
+	fi
+}
+
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
+		run_pre_restore_command
 		start_spinner "Restoring..." "Tmux restore complete!"
 		restore_all_panes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
